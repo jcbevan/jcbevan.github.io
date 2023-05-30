@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>JCBevan</title>
+  <title>My GitHub Pages</title>
   <style>
     body {
       font-family: Calibri, sans-serif;
@@ -44,7 +44,8 @@
 </head>
 <body>
   <div class="header">
-    <h1>JCBevan</h1>
+    <h1>Jay's GitHub Page</h1>
+    <div class="subtitle">Stay tuned for actual content!</div>
   </div>
   <div class="content">
     <canvas id="gameCanvas" width="800" height="600"></canvas>
@@ -62,6 +63,7 @@
 
     const bullets = [];
     const targets = [];
+    let score = 0;
 
     function drawGun() {
       ctx.fillRect(gun.x, gun.y, gun.width, gun.height);
@@ -70,7 +72,7 @@
     function drawBullets() {
       for (let i = 0; i < bullets.length; i++) {
         ctx.fillRect(bullets[i].x, bullets[i].y, bullets[i].width, bullets[i].height);
-        bullets[i].y -= 5;
+        bullets[i].y -= 15; // Increased from 2 to 5
       }
     }
 
@@ -90,6 +92,12 @@
       });
     }
 
+    function drawScore() {
+      ctx.font = "16px Arial";
+      ctx.fillStyle = "#0095DD";
+      ctx.fillText("Score: "+score, 8, 20);
+    }
+
     function collisionDetection() {
       for (let i = 0; i < bullets.length; i++) {
         for (let j = 0; j < targets.length; j++) {
@@ -99,6 +107,7 @@
               bullets[i].y + bullets[i].height > targets[j].y) {
                 bullets.splice(i, 1);
                 targets.splice(j, 1);
+                score++;
                 return;
               }
         }
@@ -123,6 +132,7 @@
       drawGun();
       drawBullets();
       drawTargets();
+      drawScore();
       collisionDetection();
 
       if (Math.random() < 0.01) {
