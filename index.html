@@ -36,6 +36,10 @@
     .content p {
       margin-bottom: 10px;
     }
+
+    #ballCanvas {
+      border: 1px solid black;
+    }
   </style>
 </head>
 <body>
@@ -43,5 +47,61 @@
     <h1>Jay's GitHub Page</h1>
     <div class="subtitle">Stay tuned for actual content!</div>
   </div>
+  <div class="content">
+    <canvas id="ballCanvas" width="600" height="400"></canvas>
+  </div>
+  <script>
+    let canvas = document.getElementById('ballCanvas');
+    let ctx = canvas.getContext('2d');
+    let x = canvas.width / 2;
+    let y = canvas.height - 30;
+    let dx = 2;
+    let dy = -2;
+    let ballRadius = 10;
+    let isDragging = false;
+
+    function drawBall() {
+      ctx.beginPath();
+      ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+      ctx.fillStyle = "#0095DD";
+      ctx.fill();
+      ctx.closePath();
+    }
+
+    function animateBall() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawBall();
+      if(x + dx > canvas.width-ballRadius || x + dx < ballRadius) {
+        dx = -dx;
+      }
+      if(y + dy > canvas.height-ballRadius || y + dy < ballRadius) {
+        dy = -dy;
+      }
+      if (!isDragging) {
+        x += dx;
+        y += dy;
+      }
+      requestAnimationFrame(animateBall);
+    }
+
+    canvas.onmousedown = function(e) {
+      isDragging = true;
+      x = e.clientX - canvas.offsetLeft;
+      y = e.clientY - canvas.offsetTop;
+    };
+
+    canvas.onmouseup = function() {
+      isDragging = false;
+    };
+
+    canvas.onmousemove = function(e) {
+      if (isDragging) {
+        x = e.clientX - canvas.offsetLeft;
+        y = e.clientY - canvas.offsetTop;
+      }
+    };
+
+    animateBall();
+  </script>
 </body>
 </html>
