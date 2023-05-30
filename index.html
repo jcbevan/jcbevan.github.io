@@ -37,7 +37,7 @@
       margin-bottom: 10px;
     }
 
-    #ballCanvas {
+    #gameCanvas {
       border: 1px solid black;
     }
   </style>
@@ -48,60 +48,92 @@
     <div class="subtitle">Stay tuned for actual content!</div>
   </div>
   <div class="content">
-    <canvas id="ballCanvas" width="600" height="400"></canvas>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
   </div>
   <script>
-    let canvas = document.getElementById('ballCanvas');
-    let ctx = canvas.getContext('2d');
-    let x = canvas.width / 2;
-    let y = canvas.height - 30;
-    let dx = 2;
-    let dy = -2;
-    let ballRadius = 10;
-    let isDragging = false;
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
 
-    function drawBall() {
-      ctx.beginPath();
-      ctx.arc(x, y, ballRadius, 0, Math.PI*2);
-      ctx.fillStyle = "#0095DD";
-      ctx.fill();
-      ctx.closePath();
+    const gun = {
+      x: canvas.width / 2,
+      y: canvas.height - 30,
+      width: 50,
+      height: 20,
+    };
+
+    const bullets = [];
+    const targets = [];
+
+    function drawGun() {
+      ctx.fillRect(gun.x, gun.y, gun.width, gun.height);
     }
 
-    function animateBall() {
+    function drawBullets() {
+      for (let i = 0; i < bullets.length; i++) {
+        ctx.fillRect(bullets[i].x, bullets[i].y, bullets[i].width, bullets[i].height);
+        bullets[i].y -= 2;
+      }
+    }
+
+    function drawTargets() {
+      for (let i = 0; i < targets.length; i++) {
+        ctx.fillRect(targets[i].x, targets[i].y, targets[i].width, targets[i].height);
+        targets[i].x += 1;
+      }
+    }
+
+    function spawnTargets() {
+      targets.push({
+        x: 0,
+        y: Math.random() * canvas.height,
+        width: 20,
+        height: 20,
+      });
+    }
+
+    function collisionDetection() {
+      for (let i = 0; i < bullets.length; i++) {
+        for (let j = 0; j < targets.length; j++) {
+          if (bullets[i].x < targets[j].x + targets[j].width &&
+              bullets[i].x + bullets[i].width > targets[j].x &&
+              bullets[i].y < targets[j].y + targets[j].height &&
+              bullets[i].y + bullets[i].height > targets[j].y) {
+                bullets.splice(i, 1);
+                targets.splice(j, 1);
+                return;
+              }
+        }
+      }
+    }
+
+    canvas.addEventListener('mousemove', function(event) {
+      gun.x = event.clientX - canvas.offsetLeft;
+    });
+
+    canvas.addEventListener('click', function() {
+      bullets.push({
+        x: gun.x + gun.width / 2,
+        y: gun.y,
+        width: 5,
+        height: 10,
+      });
+    });
+
+    function gameLoop() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawBall();
-      if(x + dx > canvas.width-ballRadius || x + dx < ballRadius) {
-        dx = -dx;
+      drawGun();
+      drawBullets();
+      drawTargets();
+      collisionDetection();
+
+      if (Math.random() < 0.01) {
+        spawnTargets();
       }
-      if(y + dy > canvas.height-ballRadius || y + dy < ballRadius) {
-        dy = -dy;
-      }
-      if (!isDragging) {
-        x += dx;
-        y += dy;
-      }
-      requestAnimationFrame(animateBall);
+
+      requestAnimationFrame(gameLoop);
     }
 
-    canvas.onmousedown = function(e) {
-      isDragging = true;
-      x = e.clientX - canvas.offsetLeft;
-      y = e.clientY - canvas.offsetTop;
-    };
-
-    canvas.onmouseup = function() {
-      isDragging = false;
-    };
-
-    canvas.onmousemove = function(e) {
-      if (isDragging) {
-        x = e.clientX - canvas.offsetLeft;
-        y = e.clientY - canvas.offsetTop;
-      }
-    };
-
-    animateBall();
+    gameLoop();
   </script>
 </body>
 </html>
