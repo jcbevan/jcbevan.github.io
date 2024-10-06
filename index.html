@@ -4,15 +4,17 @@
   <title>My GitHub Pages</title>
   <style>
     body {
-      font-family: Calibri, sans-serif;
+      font-family: sans-serif;
       font-size: 16px;
       line-height: 1.5;
       margin: 0;
       padding: 0;
+      background-color: #000000;
+      color: #ffffff;
     }
 
     .header {
-      background-color: #f2f2f2;
+      background-color: #203129;
       padding: 20px;
     }
 
@@ -25,7 +27,7 @@
     .subtitle {
       font-size: 20px;
       margin-top: 20px;
-      color: #666666;
+      color: #cccccc;
     }
 
     .content {
@@ -38,7 +40,8 @@
     }
 
     #gameCanvas {
-      border: 1px solid black;
+      border: 1px solid #203129;
+      background-color: #203129;
     }
   </style>
 </head>
@@ -66,36 +69,43 @@
     let score = 0;
 
     function drawGun() {
+      ctx.fillStyle = "#ffffff";
       ctx.fillRect(gun.x, gun.y, gun.width, gun.height);
     }
 
     function drawBullets() {
       for (let i = 0; i < bullets.length; i++) {
+        ctx.fillStyle = "#ff0000";
         ctx.fillRect(bullets[i].x, bullets[i].y, bullets[i].width, bullets[i].height);
-        bullets[i].y -= 15; // Increased from 2 to 5
+        bullets[i].y -= 15;
       }
     }
 
     function drawTargets() {
       for (let i = 0; i < targets.length; i++) {
+        ctx.fillStyle = "#00ff00";
         ctx.fillRect(targets[i].x, targets[i].y, targets[i].width, targets[i].height);
-        targets[i].x += 1;
+        targets[i].x += targets[i].speed;
+        if (targets[i].x > canvas.width || targets[i].x < 0) {
+          targets[i].speed *= -1;
+        }
       }
     }
 
     function spawnTargets() {
       targets.push({
-        x: 0,
-        y: Math.random() * canvas.height,
+        x: Math.random() * (canvas.width - 20),
+        y: Math.random() * (canvas.height / 2),
         width: 20,
         height: 20,
+        speed: (Math.random() < 0.5 ? -1 : 1) * (Math.random() * 2 + 1),
       });
     }
 
     function drawScore() {
       ctx.font = "16px Arial";
-      ctx.fillStyle = "#0095DD";
-      ctx.fillText("Score: "+score, 8, 20);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillText("Score: " + score, 8, 20);
     }
 
     function collisionDetection() {
@@ -115,12 +125,12 @@
     }
 
     canvas.addEventListener('mousemove', function(event) {
-      gun.x = event.clientX - canvas.offsetLeft;
+      gun.x = event.clientX - canvas.offsetLeft - gun.width / 2;
     });
 
     canvas.addEventListener('click', function() {
       bullets.push({
-        x: gun.x + gun.width / 2,
+        x: gun.x + gun.width / 2 - 2.5,
         y: gun.y,
         width: 5,
         height: 10,
@@ -135,7 +145,7 @@
       drawScore();
       collisionDetection();
 
-      if (Math.random() < 0.01) {
+      if (Math.random() < 0.02) {
         spawnTargets();
       }
 
