@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>My GitHub Pages</title>
+  <title>jcbevan</title>
   <style>
     body {
       font-family: sans-serif;
@@ -11,11 +11,18 @@
       padding: 0;
       background-color: #000000;
       color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
     }
 
     .header {
       background-color: #203129;
       padding: 20px;
+      width: 100%;
+      text-align: center;
     }
 
     .header h1 {
@@ -26,13 +33,16 @@
 
     .subtitle {
       font-size: 20px;
-      margin-top: 20px;
+      margin-top: 10px;
       color: #cccccc;
     }
 
     .content {
       padding: 20px;
-      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
 
     .content p {
@@ -42,20 +52,39 @@
     #gameCanvas {
       border: 1px solid #203129;
       background-color: #203129;
+      max-width: 100%;
+    }
+
+    #gameOver {
+      font-size: 24px;
+      color: #ff0000;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
   <div class="header">
-    <h1>Jay's GitHub Page</h1>
-    <div class="subtitle">Stay tuned for actual content!</div>
+    <h1>jcbevan</h1>
+    <div class="subtitle">Software Engineer, Hardware Synth Enthusiast, Oddball</div>
   </div>
   <div class="content">
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <canvas id="gameCanvas"></canvas>
+    <div id="gameOver" style="display: none;"></div>
   </div>
   <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
+    const gameOverDiv = document.getElementById('gameOver');
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth * 0.8;
+      canvas.height = window.innerHeight * 0.6;
+      car.x = canvas.width / 2 - car.width / 2;
+      car.y = canvas.height - car.height - 10;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
 
     const car = {
       x: canvas.width / 2 - 25,
@@ -66,6 +95,7 @@
 
     const obstacles = [];
     let score = 0;
+    let gameOver = false;
 
     function drawCar() {
       ctx.fillStyle = "#ffffff";
@@ -103,8 +133,12 @@
             car.x + car.width > obstacles[i].x &&
             car.y < obstacles[i].y + obstacles[i].height &&
             car.y + car.height > obstacles[i].y) {
-              alert("Game Over! Your score: " + score);
-              document.location.reload();
+              gameOver = true;
+              gameOverDiv.style.display = 'block';
+              gameOverDiv.textContent = "Game Over! Your score: " + score;
+              setTimeout(() => {
+                document.location.reload();
+              }, 2000);
               return;
             }
       }
@@ -118,6 +152,8 @@
     });
 
     function gameLoop() {
+      if (gameOver) return;
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       drawCar();
       drawObstacles();
