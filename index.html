@@ -57,48 +57,37 @@
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
-    const gun = {
-      x: canvas.width / 2,
-      y: canvas.height - 30,
+    const car = {
+      x: canvas.width / 2 - 25,
+      y: canvas.height - 70,
       width: 50,
-      height: 20,
+      height: 70,
     };
 
-    const bullets = [];
-    const targets = [];
+    const obstacles = [];
     let score = 0;
 
-    function drawGun() {
+    function drawCar() {
       ctx.fillStyle = "#ffffff";
-      ctx.fillRect(gun.x, gun.y, gun.width, gun.height);
+      ctx.fillRect(car.x, car.y, car.width, car.height);
     }
 
-    function drawBullets() {
-      for (let i = 0; i < bullets.length; i++) {
+    function drawObstacles() {
+      for (let i = 0; i < obstacles.length; i++) {
         ctx.fillStyle = "#ff0000";
-        ctx.fillRect(bullets[i].x, bullets[i].y, bullets[i].width, bullets[i].height);
-        bullets[i].y -= 15;
+        ctx.fillRect(obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
+        obstacles[i].y += obstacles[i].speed;
       }
     }
 
-    function drawTargets() {
-      for (let i = 0; i < targets.length; i++) {
-        ctx.fillStyle = "#00ff00";
-        ctx.fillRect(targets[i].x, targets[i].y, targets[i].width, targets[i].height);
-        targets[i].x += targets[i].speed;
-        if (targets[i].x > canvas.width || targets[i].x < 0) {
-          targets[i].speed *= -1;
-        }
-      }
-    }
-
-    function spawnTargets() {
-      targets.push({
-        x: Math.random() * (canvas.width - 20),
-        y: Math.random() * (canvas.height / 2),
-        width: 20,
+    function spawnObstacles() {
+      const width = Math.random() * 100 + 50;
+      obstacles.push({
+        x: Math.random() * (canvas.width - width),
+        y: -50,
+        width: width,
         height: 20,
-        speed: (Math.random() < 0.5 ? -1 : 1) * (Math.random() * 2 + 1),
+        speed: Math.random() * 3 + 2,
       });
     }
 
@@ -109,46 +98,37 @@
     }
 
     function collisionDetection() {
-      for (let i = 0; i < bullets.length; i++) {
-        for (let j = 0; j < targets.length; j++) {
-          if (bullets[i].x < targets[j].x + targets[j].width &&
-              bullets[i].x + bullets[i].width > targets[j].x &&
-              bullets[i].y < targets[j].y + targets[j].height &&
-              bullets[i].y + bullets[i].height > targets[j].y) {
-                bullets.splice(i, 1);
-                targets.splice(j, 1);
-                score++;
-                return;
-              }
-        }
+      for (let i = 0; i < obstacles.length; i++) {
+        if (car.x < obstacles[i].x + obstacles[i].width &&
+            car.x + car.width > obstacles[i].x &&
+            car.y < obstacles[i].y + obstacles[i].height &&
+            car.y + car.height > obstacles[i].y) {
+              alert("Game Over! Your score: " + score);
+              document.location.reload();
+              return;
+            }
       }
     }
 
     canvas.addEventListener('mousemove', function(event) {
-      gun.x = event.clientX - canvas.offsetLeft - gun.width / 2;
-    });
-
-    canvas.addEventListener('click', function() {
-      bullets.push({
-        x: gun.x + gun.width / 2 - 2.5,
-        y: gun.y,
-        width: 5,
-        height: 10,
-      });
+      const rect = canvas.getBoundingClientRect();
+      car.x = event.clientX - rect.left - car.width / 2;
+      if (car.x < 0) car.x = 0;
+      if (car.x > canvas.width - car.width) car.x = canvas.width - car.width;
     });
 
     function gameLoop() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawGun();
-      drawBullets();
-      drawTargets();
+      drawCar();
+      drawObstacles();
       drawScore();
       collisionDetection();
 
       if (Math.random() < 0.02) {
-        spawnTargets();
+        spawnObstacles();
       }
 
+      score++;
       requestAnimationFrame(gameLoop);
     }
 
